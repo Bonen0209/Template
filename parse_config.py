@@ -5,7 +5,7 @@ from functools import reduce, partial
 from operator import getitem
 from datetime import datetime
 from logger import setup_logging
-from utils import read_json, write_json
+from utils import read_json, read_yaml, write_json, write_yaml
 
 
 class ConfigParser:
@@ -67,8 +67,12 @@ class ConfigParser:
             assert args.config is not None, msg_no_cfg
             resume = None
             cfg_fname = Path(args.config)
-        
-        config = read_json(cfg_fname)
+
+        if Path(cfg_fname).suffix == '.json':
+            config = read_json(cfg_fname)
+        elif Path(cfg_fname).suffix == '.yaml':
+            config = read_yaml(cfg_fname)
+
         if args.config and resume:
             # update new config for fine-tuning
             config.update(read_json(args.config))

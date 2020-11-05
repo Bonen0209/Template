@@ -1,6 +1,8 @@
 import json
+import yaml
 import pandas as pd
 from pathlib import Path
+from six import iteritems
 from itertools import repeat
 from collections import OrderedDict
 
@@ -14,11 +16,34 @@ def read_json(fname):
     fname = Path(fname)
     with fname.open('rt') as handle:
         return json.load(handle, object_hook=OrderedDict)
+    
+def read_yaml(fname):
+    _mapping_tag = yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG
+
+    def dict_constructor(loader, node):
+        return OrderedDict(loader.construct_pairs(node))
+
+    yaml.add_constructor(_mapping_tag, dict_constructor)
+
+    fname = Path(fname)
+
+    with fname.open('rt') as handle:
+        return yaml.load(handle, Loader=yaml.FullLoader)
 
 def write_json(content, fname):
     fname = Path(fname)
     with fname.open('wt') as handle:
         json.dump(content, handle, indent=4, sort_keys=False)
+
+def write_yaml(content, fname):
+    def dict_representer(dumper, data):
+        return dumper.represent_dict(iteritems(data))
+
+    yaml.add_representer(OrderedDict, dict_representer)
+
+    fname = Path(fname)
+    with fname.open('wt') as handle:
+        yaml.dump(content, handle)
 
 def inf_loop(data_loader):
     ''' wrapper function for endless data loader. '''
