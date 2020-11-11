@@ -9,9 +9,9 @@ class Trainer(BaseTrainer):
     """
     Trainer class
     """
-    def __init__(self, model, criterion, metric_ftns, optimizer, config, data_loader,
+    def __init__(self, model, criterion, metric_ftns, plot_ftns, optimizer, config, data_loader,
                  valid_data_loader=None, lr_scheduler=None, len_epoch=None):
-        super().__init__(model, criterion, metric_ftns, optimizer, config)
+        super().__init__(model, criterion, metric_ftns, plot_ftns, optimizer, config)
         self.config = config
         self.data_loader = data_loader
         if len_epoch is None:
@@ -58,6 +58,8 @@ class Trainer(BaseTrainer):
                     self._progress(batch_idx),
                     loss.item()))
                 self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
+                for plt in self.plot_ftns:
+                    self.writer.add_image(plt.__name__, plt(output, target))
 
             if batch_idx == self.len_epoch:
                 break

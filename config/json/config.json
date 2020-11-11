@@ -28,6 +28,9 @@
     "metrics": [
         "accuracy", "top_k_acc"
     ],
+    "plots": [
+        "confusion_matrix"
+    ],
     "lr_scheduler": {
         "type": "StepLR",
         "args": {
