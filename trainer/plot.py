@@ -5,6 +5,7 @@ import seaborn as sns
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
+
 def confusion_matrix(output, target):
     try:
         from sklearn.metrics import confusion_matrix as cm
