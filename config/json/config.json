@@ -51,5 +51,8 @@
         "early_stop": 10,
 
         "tensorboard": true
+    },
+    "tester": {
+        "verbosity": 2
     }
 }

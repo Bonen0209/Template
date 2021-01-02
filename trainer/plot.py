@@ -10,7 +10,7 @@ def confusion_matrix(output, target):
     try:
         from sklearn.metrics import confusion_matrix as cm
     except ImportError:
-        raise RuntimeError("Confusion Matrix requires sklearn to be installed.")
+        raise RuntimeError("Confusion Matrix requires scikit-learn to be installed.")
 
     with torch.no_grad():
         pred = torch.argmax(output, dim=1)

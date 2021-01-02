@@ -11,9 +11,10 @@ def ensure_dir(dirname):
     dirname = Path(dirname)
     if not dirname.is_dir():
         dirname.mkdir(parents=True, exist_ok=False)
-def read_csv(fname):
+
+def read_csv(fname, **kwargs):
     fname = Path(fname)
-    return pd.read_csv(fname)
+    return pd.read_csv(fname, **kwargs)
 
 def read_json(fname):
     fname = Path(fname)
