@@ -28,7 +28,7 @@ class Tester(BaseTester):
             outputs = []
             targets = []
             for batch_idx, (data, target) in enumerate(tqdm(self.data_loader)):
-                data, target = data.to(self.device), target.to(self.device)
+                data, target = data.to(self.device, non_blocking=self.non_blocking), target.to(self.device, non_blocking=self.non_blocking)
 
                 output = self.model(data)
                 loss = self.criterion(output, target)
