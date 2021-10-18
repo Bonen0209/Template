@@ -2,7 +2,6 @@ import torch
 import torchvision
 from base import BaseTester
 from utils import MetricTracker
-from tqdm import tqdm
 
 
 class Tester(BaseTester):
@@ -27,7 +26,7 @@ class Tester(BaseTester):
         with torch.no_grad():
             outputs = []
             targets = []
-            for batch_idx, (data, target) in enumerate(tqdm(self.data_loader)):
+            for batch_idx, (data, target) in enumerate(self.data_loader):
                 data, target = data.to(self.device, non_blocking=self.non_blocking), target.to(self.device, non_blocking=self.non_blocking)
 
                 output = self.model(data)

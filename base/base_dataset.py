@@ -1,4 +1,3 @@
-import numpy as np
 from pathlib import Path
 from abc import abstractmethod
 from torch.utils.data import Dataset
