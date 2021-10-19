@@ -90,8 +90,15 @@ class ConfigParser:
         is equivalent to
         `object = module.name(a, b=1)`
         """
-        module_name = self[name]['type']
-        module_args = dict(self[name]['args'])
+        if isinstance(name, tuple):
+            temp_module = self[name[0]]
+            for key in name[1:]:
+                temp_module = temp_module[key]
+            module_name = temp_module['type']
+            module_args = dict(temp_module['args'])
+        else:
+            module_name = self[name]['type']
+            module_args = dict(self[name]['args'])
         assert all([k not in module_args for k in kwargs]), 'Overwriting kwargs given in config file is not allowed'
         module_args.update(kwargs)
         return getattr(module, module_name)(*args, **module_args)
