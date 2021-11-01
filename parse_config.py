@@ -11,7 +11,7 @@ from utils import read_json, read_yaml, write_json, write_yaml
 class ConfigParser:
     def __init__(self, config, resume=None, modification=None, run_id=None):
         """
-        class to parse configuration json file. Handles hyperparameters for training, initializations of modules, checkpoint saving
+        class to parse configuration yaml file. Handles hyperparameters for training, initializations of modules, checkpoint saving
         and logging module.
         :param config: Dict containing configurations, hyperparameters for training. contents of `config.json` file for example.
         :param resume: String, path to the checkpoint being loaded.
@@ -68,9 +68,7 @@ class ConfigParser:
             resume = None
             cfg_fname = Path(args.config)
 
-        if Path(cfg_fname).suffix == '.json':
-            config = read_json(cfg_fname)
-        elif Path(cfg_fname).suffix == '.yaml':
+        if Path(cfg_fname).suffix == '.yaml':
             config = read_yaml(cfg_fname)
 
         if args.config and resume:
