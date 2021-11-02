@@ -23,7 +23,7 @@ class ConfigParser:
         self.resume = resume
 
         # set save_dir where trained model and log will be saved.
-        save_dir = Path(self.config['trainer']['save_dir'])
+        save_dir = Path(self._get_by_path(self.config, ['trainer', 'save_dir']))
 
         exper_name = self.config['name']
         if run_id is None: # use timestamp as default run-id
@@ -120,7 +120,11 @@ class ConfigParser:
 
     def __getitem__(self, name):
         """Access items like ordinary dict."""
-        return self.config[name]
+        names = name.split('.')
+        if len(names) <= 1:
+            return self.config[name]
+        else:
+            return self._get_by_path(self.config, names)
 
     def get_logger(self, name, verbosity=2):
         msg_verbosity = 'verbosity option {} is invalid. Valid options are {}.'.format(verbosity, self.log_levels.keys())

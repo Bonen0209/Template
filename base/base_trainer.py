@@ -10,11 +10,11 @@ class BaseTrainer:
     """
     def __init__(self, model, criterion, metric_ftns, plot_ftns, optimizer, config):
         self.config = config
-        self.logger = config.get_logger('trainer', config['trainer']['verbosity'])
+        self.logger = config.get_logger('trainer', config['trainer.verbosity'])
 
         # setup GPU device if available, move model into configured device
         self.device, device_ids = self._prepare_device(config['n_gpu'])
-        self.non_blocking = config['data_loader']['args']['pin_memory']
+        self.non_blocking = config['data_loader.args.pin_memory']
         self.model = model.to(self.device)
         if len(device_ids) > 1:
             self.model = torch.nn.DataParallel(model, device_ids=device_ids)
@@ -24,10 +24,9 @@ class BaseTrainer:
         self.plot_ftns = plot_ftns
         self.optimizer = optimizer
 
-        cfg_trainer = config['trainer']
-        self.epochs = cfg_trainer['epochs']
-        self.save_period = cfg_trainer['save_period']
-        self.monitor = cfg_trainer.get('monitor', 'off')
+        self.epochs = config['trainer.epochs']
+        self.save_period = config['trainer.save_period']
+        self.monitor = config['trainer'].get('monitor', 'off')
 
         # configuration to monitor model performance and save best
         if self.monitor == 'off':
@@ -38,14 +37,14 @@ class BaseTrainer:
             assert self.mnt_mode in ['min', 'max']
 
             self.mnt_best = inf if self.mnt_mode == 'min' else -inf
-            self.early_stop = cfg_trainer.get('early_stop', inf)
+            self.early_stop = config['trainer'].get('early_stop', inf)
 
         self.start_epoch = 1
 
         self.checkpoint_dir = config.save_dir
 
         # setup visualization writer instance                
-        self.writer = TensorboardWriter(config.log_dir, self.logger, cfg_trainer['tensorboard'])
+        self.writer = TensorboardWriter(config.log_dir, self.logger, config['trainer.tensorboard'])
 
         if config.resume is not None:
             self._resume_checkpoint(config.resume)
@@ -164,7 +163,7 @@ class BaseTrainer:
         self.model.load_state_dict(checkpoint['state_dict'])
 
         # load optimizer state from checkpoint only when optimizer type is not changed.
-        if checkpoint['config']['optimizer']['type'] != self.config['optimizer']['type']:
+        if checkpoint['config']['optimizer.type'] != self.config['optimizer.type']:
             self.logger.warning("Warning: Optimizer type given in config file is different from that of checkpoint. "
                                 "Optimizer parameters not being resumed.")
         else:
