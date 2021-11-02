@@ -61,20 +61,21 @@ class ConfigParser:
         if args.resume is not None:
             resume = Path(args.resume)
             cfg_fname = resume.parent / 'config.json'
+            config = read_json(cfg_fname)
         else:
             msg_no_cfg = "Configuration file need to be specified. Add '-c config.json', for example."
             assert args.config is not None, msg_no_cfg
             resume = None
             cfg_fname = Path(args.config)
 
-        if Path(cfg_fname).suffix == '.yaml':
-            config = read_yaml(cfg_fname)
-        else:
-            raise FileNotFoundError('Didn\'t find any yaml files')
+            if Path(cfg_fname).suffix == '.yaml':
+                config = read_yaml(cfg_fname)
+            else:
+                raise FileNotFoundError('Didn\'t find any yaml files')
 
         # Update new config for fine-tuning
         if args.config and resume:
-            config.update(read_json(args.config))
+            config.update(read_yaml(args.config))
 
         # Parse custom cli options into dictionary
         modification = {opt.target : getattr(args, cls._get_opt_name(opt.flags)) for opt in options}
