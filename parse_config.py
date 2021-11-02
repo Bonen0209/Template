@@ -19,7 +19,7 @@ class ConfigParser:
         :param run_id: Unique Identifier for training processes. Used to save checkpoints and training log. Timestamp is being used as default
         """
         # load config file and apply modification
-        self._config = _update_config(config, modification)
+        self._config = self._update_config(config, modification)
         self.resume = resume
 
         # set save_dir where trained model and log will be saved.
@@ -54,8 +54,7 @@ class ConfigParser:
         """
         for opt in options:
             args.add_argument(*opt.flags, default=None, type=opt.type)
-        if not isinstance(args, tuple):
-            args = args.parse_args()
+        args = args.parse_args()
 
         if args.device is not None:
             os.environ["CUDA_VISIBLE_DEVICES"] = args.device
@@ -70,13 +69,15 @@ class ConfigParser:
 
         if Path(cfg_fname).suffix == '.yaml':
             config = read_yaml(cfg_fname)
+        else:
+            raise FileNotFoundError('Didn\'t find any yaml files')
 
+        # Update new config for fine-tuning
         if args.config and resume:
-            # update new config for fine-tuning
             config.update(read_json(args.config))
 
-        # parse custom cli options into dictionary
-        modification = {opt.target : getattr(args, _get_opt_name(opt.flags)) for opt in options}
+        # Parse custom cli options into dictionary
+        modification = {opt.target : getattr(args, cls._get_opt_name(opt.flags)) for opt in options}
         return cls(config, resume, modification)
 
     def init_obj(self, name, module, *args, **kwargs):
@@ -140,27 +141,34 @@ class ConfigParser:
     def log_dir(self):
         return self._log_dir
 
-# helper functions to update config dict with custom cli options
-def _update_config(config, modification):
-    if modification is None:
+    # Helper functions to update config dict with custom cli options
+    @staticmethod
+    def _update_config(config, modification):
+        if modification is None:
+            return config
+
+        for key, value in modification.items():
+            if value is not None:
+                keys = key.split('.')
+                ConfigParser._set_by_path(config, keys, value)
+
         return config
 
-    for k, v in modification.items():
-        if v is not None:
-            _set_by_path(config, k, v)
-    return config
+    # TODO
+    # Need to redesign this function
+    @staticmethod
+    def _get_opt_name(flags):
+        for flg in flags:
+            if flg.startswith('--'):
+                return flg.replace('--', '')
+        return flags[0].replace('--', '')
 
-def _get_opt_name(flags):
-    for flg in flags:
-        if flg.startswith('--'):
-            return flg.replace('--', '')
-    return flags[0].replace('--', '')
+    @staticmethod
+    def _set_by_path(tree, keys, value):
+        """Set a value in a nested object in tree by sequence of keys."""
+        ConfigParser._get_by_path(tree, keys[:-1])[keys[-1]] = value
 
-def _set_by_path(tree, keys, value):
-    """Set a value in a nested object in tree by sequence of keys."""
-    keys = keys.split(';')
-    _get_by_path(tree, keys[:-1])[keys[-1]] = value
-
-def _get_by_path(tree, keys):
-    """Access a nested object in tree by sequence of keys."""
-    return reduce(getitem, keys, tree)
+    @staticmethod
+    def _get_by_path(tree, keys):
+        """Access a nested object in tree by sequence of keys."""
+        return reduce(getitem, keys, tree)
