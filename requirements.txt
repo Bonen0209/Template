@@ -1,0 +1,9 @@
+pyyaml
+pandas
+scikit-learn
+torch
+torchvision
+torchaudio
+tensorboardX
+matplotlib
+seaborn
